@@ -19,14 +19,18 @@ public class DisplayImpl implements RPCImpl {
 		// look at how this is done int he SensorImpl for the read method
 		
 	
-		String umstr = RPCUtils.unmarshallString(request);
+		String str = RPCUtils.unmarshallString(request);
 		
 		rpcid = request[0];
 		
-		reply = RPCUtils.marshallString(rpcid, umstr);
-				
+		write(str);
+		
+		reply = RPCUtils.marshallString(rpcid, str);
+		
 		return reply;
-	}
+		
+
+	}	
 	
 	
 

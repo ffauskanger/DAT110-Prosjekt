@@ -102,7 +102,6 @@ public class RPCUtils {
 
 	public static int unmarshallInteger(byte[] data) {
 
-		// Ikke gjort
 		int decoded = 0;
 		
 		// Converting

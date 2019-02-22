@@ -43,14 +43,25 @@ public class Controller  {
 		
 		// TODO:
 		// loop while reading from sensor and write to display via RPC
-		boolean readwrite = true;
+		int n = 5;
 		
-		if (readwrite) {
-				String message = Integer.toString(sensor.read());; 
-			 	display.write(message);
-			 	//readwrite = false;  // Skal denne være aktiv?
+		for(int i = 0; i < n; i++)	
+		{
+			
+			String message = Integer.toString(sensor.read());; 
+			display.write(message);
+			
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				System.out.println("Display sleep: " + e);
+				e.printStackTrace();
 			}
-		
+			
+			
+		}
+
+	
 		stopdisplay.stop();
 		stopsensor.stop();
 	

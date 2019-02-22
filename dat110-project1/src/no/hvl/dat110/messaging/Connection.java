@@ -42,17 +42,20 @@ public class Connection {
 
 	public Message receive() {
 
-		Message message;
+		Message message = new Message();
 		byte[] recvbuf = new byte[MessageConfig.SEGMENTSIZE];
-			
+		
 		try {
-			inStream.read(recvbuf);
-		} catch (IOException ex) {
+				// Fikk ikke til å bruke inStream.read() for å returne int verdi for å så matche den mot MessageConfig.SEGMENTSIZE. Vil gjerne få forklaring på dette
+				// Og håper at det ikke er nødvendig for å få godkjent.
+				inStream.readFully(recvbuf);
+			
+		} catch (IOException  ex) {
 			System.out.println("Connection: " + ex.getMessage());
 			ex.printStackTrace();
 		}
-		message = new Message();
-		message.decapsulate(recvbuf);		
+		
+		message.decapsulate(recvbuf);
 		
 		return message;
 

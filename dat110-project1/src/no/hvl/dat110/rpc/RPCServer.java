@@ -34,54 +34,33 @@ public class RPCServer {
 		System.out.println("RPC SERVER ACCEPTED");
 		
 		boolean stop = false;
+		int rpcid;
 		
 		while (!stop) {
-	    
-		   int rpcid;
-		   
+	    		   
 		   // TODO
 		   // - receive message containing RPC request 
 		   // - find the identifier for the RPC methods to invoke
 		   // - lookup the methods to be invoked
 		   // - invoke the method
 		   // - send back message containing RPC reply
+						
 			
 		   
-		   // Usikker på hvordan implementere dette korrekt
-		   
 		   Message message = connection.receive();
-		   Message returnMessage = null;
+		   byte[] reply;
 		   
 		   rpcid = message.getData()[0];
 		   
 		   if (rpcid == RPCCommon.RPIDSTOP) {
 			   stop = true;
 		   }
-		   
-		   else if(rpcid == RPCCommon.RPIDVOID) // void
-		   {
-			   RPCUtils.unmarshallVoid(message.getData());
-			   returnMessage = null;
-			  
-		   }
-		   else if(rpcid == RPCCommon.RPIDSTRING) // string
-		   {
-			   String str = RPCUtils.unmarshallString(message.getData());
-			   returnMessage = new Message(RPCUtils.marshallString(RPCCommon.RPIDSTRING, str));
-		   }
-		   else if(rpcid == RPCCommon.RPIDINT) // int
-		   {
-			   int integer = RPCUtils.unmarshallInteger(message.getData());
-			   returnMessage = new Message(RPCUtils.marshallInteger(RPCCommon.RPIDINT, integer));
-		   }
-		   else if(rpcid == RPCCommon.RPIDBOOL) // bool
-		   {
-			   Boolean bool = RPCUtils.unmarshallBoolean(message.getData());
-			   returnMessage = new Message(RPCUtils.marshallBoolean(RPCCommon.RPIDBOOL, bool));
+		   else {
+			    reply = services.get(rpcid).invoke(message.getData());
+			    message = new Message(reply);
 		   }
 		   
-		   
-		   connection.send(returnMessage);
+		   connection.send(message);
 		}
 	
 	}
