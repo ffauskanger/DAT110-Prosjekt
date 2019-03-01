@@ -1,6 +1,10 @@
 package no.hvl.dat110.broker;
 
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.sun.security.ntlm.Client;
+
 import java.util.Collection;
 
 import no.hvl.dat110.common.Logger;
@@ -87,20 +91,22 @@ public class Dispatcher extends Stopable {
 		String user = msg.getUser();
 		Logger.log("onConnect:" + msg.toString());
 		
+		
 		storage.addClientSession(user, connection);
-		/*
-		if(storage.getDisconnectedSession(user) != null)
+		
+		
+		if(storage.getMessageBuffer(user) != null)
 		{
-			storage.addClientSession(user, connection);
-		}
-		else
-		{
-			storage.addClientSession(user, connection);
-			PublishMsg messagebuffer = storage.getMessageBuf(user);
+			System.out.println("Contains: " + user);
+			Set<PublishMsg> messages = storage.getMessageBuffer(user);
 			ClientSession client = storage.getSession(user);
-			client.send(messagebuffer);
-			
-		}*/
+
+			for(PublishMsg message : messages)
+			{
+				client.send(message);
+			}
+			storage.removeMessageBuffer(user);
+		}
 
 	}
 
@@ -112,6 +118,7 @@ public class Dispatcher extends Stopable {
 		Logger.log("onDisconnect:" + msg.toString());
 		
 		storage.removeClientSession(user);
+		storage.addMessageBuffer(user);
 
 	}
 
@@ -173,20 +180,14 @@ public class Dispatcher extends Stopable {
 		for(String subscriber : subscribers)
 		{
 			client = storage.getSession(subscriber);
-			client.send(msg);
-			
-			/*if(client != null)
+			if(client != null)
 			{
 				client.send(msg);
 			}
 			else
 			{
-				client = storage.getDisconnectedSession(subscriber);
-				storage.messagebuf.put(client.getUser(), msg);
-			}*/
+				storage.addToMessageBuffer(subscriber, msg);
+			}
 		}
-
-		//throw new RuntimeException("not yet implemented");
-		
 	}
 }

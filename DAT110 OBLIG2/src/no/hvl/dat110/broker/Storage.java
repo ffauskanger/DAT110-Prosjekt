@@ -13,15 +13,15 @@ import no.hvl.dat110.messagetransport.Connection;
 public class Storage {
 
 	protected ConcurrentHashMap<String, Set<String>> subscriptions;
-	protected ConcurrentHashMap<String, PublishMsg> messagebuf;
+	protected ConcurrentHashMap<String, Set<PublishMsg>> messagebuffer;
 	protected ConcurrentHashMap<String, ClientSession> clients;
-	protected ConcurrentHashMap<String, ClientSession> disconnectedclients;
+	
+	// client - messages
 
 	public Storage() {
 		subscriptions = new ConcurrentHashMap<String, Set<String>>();
 		clients = new ConcurrentHashMap<String, ClientSession>();
-		disconnectedclients = new ConcurrentHashMap<String, ClientSession>();
-		messagebuf = new ConcurrentHashMap<String, PublishMsg>();
+		messagebuffer = new ConcurrentHashMap<String, Set<PublishMsg>>();
 	}
 
 	public Collection<ClientSession> getSessions() {
@@ -34,22 +34,15 @@ public class Storage {
 
 	}
 	
-	public PublishMsg getMessageBuf(String user) {
+	public Set<PublishMsg> getMessageBuffer(String user) {
 
-		return messagebuf.get(user);
+		return (messagebuffer.get(user));
 
 	}
 
 	public ClientSession getSession(String user) {
 
 		ClientSession session = clients.get(user);
-
-		return session;
-	}
-	
-	public ClientSession getDisconnectedSession(String user) {
-
-		ClientSession session = disconnectedclients.get(user);
 
 		return session;
 	}
@@ -63,18 +56,9 @@ public class Storage {
 	public void addClientSession(String user, Connection connection) {
 
 		// TODO: add corresponding client session to the storage
-		if(disconnectedclients.contains(user))
-		{
-			System.out.println("Reconnected:" + user);
-			clients.put(user, disconnectedclients.get(user));
-			disconnectedclients.remove(user);
-		}
-		else {
-			ClientSession clientsession = new ClientSession(user, connection);
-			clients.put(user, clientsession);
-			System.out.println("New:" + user);
-		}
-
+		
+		ClientSession clientsession = new ClientSession(user, connection);
+		clients.put(user, clientsession);
 		
 	}
 
@@ -82,7 +66,6 @@ public class Storage {
 
 		// TODO: remove client session for user from the storage
 
-		disconnectedclients.put(user, clients.get(user));
 		clients.remove(user);
 	}
 
@@ -119,5 +102,21 @@ public class Storage {
 		
 		subscriptions.get(topic).remove(user);
 		
+	}
+	
+	public void addMessageBuffer(String user)
+	{
+		messagebuffer.put(user, new HashSet<PublishMsg>());
+	}
+	
+	public void addToMessageBuffer(String user, PublishMsg msg) {
+
+		messagebuffer.get(user).add(msg);
+		
+	}
+	
+	public void removeMessageBuffer(String user) {
+		
+		messagebuffer.remove(user);
 	}
 }
